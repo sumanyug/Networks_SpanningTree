@@ -1,69 +1,36 @@
-#include<vector>
-#include<pair>
+#include <vector>
 typedef std::vector<char> li;
 typedef std::vector<int> state;
-struct Message{
+struct Message
+{
 
-	public:
-		int rp,d,sp;
+public:
+	int rp, d, sp;
+	bool operator<(const Message &rhs) const;
+	bool operator>(const Message &rhs) const;
+	bool operator==(const Message &rhs) const;
+	Message operator=(const Message &rhs);
+	Message();
+	Message(int rp_in, int d_in, int sp_in);
 
-	bool operator < (const Message& rhs) const{
-		if(rp<rhs.rp){
-			return true;
-		}
-		else{
-			if(rp == rhs.rp){
-				if(d<rhs.d){
-					return true;
-				}
-				else{
-					if(d == rhs.d){
-						if(sp<rhs.sp)
-							return true;
-					}
-				}
-			}
-		}
+}; // A message has been defined.
+typedef std::vector<Message> received_messages;
+class Bridge
+{
+public:
+	li fields;
+	state st;
+	received_messages rm;
 
-		return false;
-	}
+	//
+	// s-> 0 --- Designated Port
+	// s-> 1 --- Null Port  //No traffic to be sent
+	// s-> 2 --- Configuration Port // No traffic to be sent.
+	//
+	Message Config_mes, Distri_mes;
 
-	bool operator > ( const Message& rhs) const{
-		return rhs < *this;
+	Bridge(int pos, li &vals);
 
-	}
+	void update_state(); // this will update the Message
 
-	bool operator == (const Message& rhs) const{
-		return rp == rhs.rp && d == rhs.d && sp == rhs.sp;
-	}
-
-	Message operator = (const Message& rhs){
-		rp = rhs.rp;
-		d = rhs.d;
-		sp = rhs.sp;
-
-		return *this;
-	}
-};
-typedef vector<Message> received_messages;
-class Bridge{
-	public:
-		li fields;
-		state st;
-		received_messages rm;
-
-		//
-		// s-> 0 --- Designated Port 
-		// s-> 1 --- Null Port  //No traffic to be sent
-		// s-> 2 --- Configuration Port // No traffic to be sent.
-		//
-		int root_port;//this will store the root port integer
-		char root_port_lan;//this will store the LAN which connects it to the root port.
-		int dist_root_port;
-
-
-		Bridge(int pos,li& vals);
-
-
-
-};
+}; //A bridge with basic functionalities defined.
