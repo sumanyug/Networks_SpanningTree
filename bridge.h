@@ -12,12 +12,15 @@ public:
 	Message operator=(const Message &rhs);
 	Message();
 	Message(int rp_in, int d_in, int sp_in);
+	Message increment_distance();
 
 }; // A message has been defined.
 typedef std::vector<Message> received_messages;
+
 class Bridge
 {
 public:
+	int pos;
 	li fields;
 	state st;
 	received_messages rm;
@@ -28,9 +31,10 @@ public:
 	// s-> 2 --- Configuration Port // No traffic to be sent.
 	//
 	Message Config_mes, Distri_mes;
-
+	Bridge();
 	Bridge(int pos, li &vals);
-
-	void update_state(); // this will update the Message
-
+	void set_init_config_message();
+	void update_state(); // this will update the output configuration messages that are to be sent.
+	li send_config_message();
+	Message out_config_mes();
 }; //A bridge with basic functionalities defined.
