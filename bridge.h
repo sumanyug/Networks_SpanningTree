@@ -45,13 +45,13 @@ class Network
 {
 	int t;
 	int n_bridges;
+	int no_simulations;
 	// string inp;
 
-	std::vector<Bridge> bridges;		//this will store all the bridges.
-	std::map<char, int> lan_number_map; //Create a numbering between lan connection and the number it is assigned.
+	std::vector<Bridge> bridges, bridges_2; //this will store all the bridges.
 	std::vector<bool> config_has_b1;
 	li int_to_lan;
-	std::vector<std::vector<int>> lan_to_bridge;
+	std::map<char, std::vector<int>> lan_def, lan_to_host;
 
 public:
 	Network();

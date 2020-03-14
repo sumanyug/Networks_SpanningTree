@@ -1,5 +1,7 @@
 #include "bridge.h"
+#include <iostream>
 #include <iterator>
+using namespace std;
 bool Message::operator<(const Message &rhs) const
 {
 	if (rp < rhs.rp)
@@ -59,11 +61,12 @@ Message::Message(int rp_in, int d_in, int sp_in)
 	sp = sp_in;
 }
 
-Message Message::increment_distance()
+Message Message::increment_distance(int newpos)
 {
-	Message new_Mess(rp, d + 1, sp);
+	Message new_Mess(rp, d + 1, newpos);
 	return new_Mess;
 }
+//----------------------------------------------------------
 
 Bridge ::Bridge()
 {
@@ -73,8 +76,6 @@ Bridge ::Bridge()
 Bridge ::Bridge(int pos, li &vals)
 {
 	this->pos = pos;
-	fields = vals;
-	st.resize((int)vals.size(), 0); //Initially all are DPs
 }
 
 void Bridge::set_init_config_message()
@@ -90,47 +91,63 @@ void Bridge::update_state()
 	//go through received messages.
 
 	received_messages ::iterator it;
-	int pos = 0, it_pos = 0;
+	char new_pos = '0';
+	bool new_pos_obtained = false;
 	for (it = rm.begin(); it != rm.end(); it++)
 	{
-		st[it_pos] = 0;
-		if (*it < Config_mes)
-		{
-			Config_mes = *it; //update the Message configuring the message.
+		char lan_from = it->first;
 
-			pos = it_pos;
+		if (it->second < Config_mes)
+		{
+			new_pos_obtained = true;
+
+			Config_mes = it->second; //update the Message configuring the message.
+
+			new_pos = lan_from;
 		}
-		it_pos++;
 	}
 
-	st[pos] = 2;
-	Distri_mes = Config_mes.increment_distance(); //Create new configuration Message.
+	if (new_pos_obtained)
+	{
+		// cout << "New position has been found for bridge " << pos << endl;
 
+		for (it = rm.begin(); it != rm.end(); it++)
+		{
+			char lan_from = it->first;
+			lan_status[lan_from] = 0;
+		}
+
+		lan_status[new_pos] = 2;
+		Distri_mes = Config_mes.increment_distance(pos); //Create new configuration Message.
+	}
 	//If new configuration message > any of the received configuration messages, the given port is not the designation port.
-	pos = 0, it_pos = 0;
 	for (it = rm.begin(); it != rm.end(); it++)
 	{
-
-		if (*it < Distri_mes && st[it_pos] != 2)
+		char lan_from = it->first;
+		if (it->second < Distri_mes && lan_status[lan_from] != 2)
 		{
-			st[it_pos] = 1;
+			lan_status[lan_from] = 1;
 		}
-		it_pos++;
 	}
+
+	rm.resize(0);
 }
 
 li Bridge::send_config_message()
 {
 
 	li new_messages;
+	map<char, int>::iterator it;
 
-	for (size_t i = 0; i < st.size(); i++)
+	for (it = lan_status.begin(); it != lan_status.end(); it++)
 	{
-		if (st[i] == 0)
+		if (it->second == 0)
 		{
-			new_messages.push_back(fields[i]);
+			new_messages.push_back(it->first);
+			// cout << it->first << " ";
 		}
 	}
+	// cout << "(" << Distri_mes.rp << "," << Distri_mes.d << "," << Distri_mes.sp << ")" << endl;
 
 	return new_messages;
 }
@@ -138,4 +155,32 @@ li Bridge::send_config_message()
 Message Bridge::out_config_mes()
 {
 	return Distri_mes;
+}
+
+void Bridge::output()
+{
+	cout << "B" << pos << ": ";
+
+	map<char, int>::iterator it;
+
+	for (it = lan_status.begin(); it != lan_status.end(); it++)
+	{
+		cout << it->first << "-";
+		int val = it->second;
+		if (val == 0)
+			cout << "DP";
+		if (val == 1)
+			cout << "NP";
+		if (val == 2)
+			cout << "RP";
+		if (it != --lan_status.end())
+			cout << " ";
+	}
+	cout << endl;
+	// cout << " Config:"
+	// 	 << "(" << Config_mes.rp << "," << Config_mes.d << "," << Config_mes.sp << ")"
+	// 	 << "|||";
+
+	// cout << "Distri:"
+	// 	 << "(" << Distri_mes.rp << "," << Distri_mes.d << "," << Distri_mes.sp << ")" << endl;
 }
