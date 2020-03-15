@@ -75,7 +75,7 @@ Bridge ::Bridge()
 	pos = -1;
 }
 
-Bridge ::Bridge(int pos, li &vals)
+Bridge ::Bridge(int pos, std::vector<char> &vals)
 {
 	this->pos = pos;
 }
@@ -147,10 +147,10 @@ void Bridge::update_state(int t, int tr_count)
 	rm.resize(0);
 }
 
-li Bridge::send_config_message()
+std::vector<char> Bridge::send_config_message()
 {
 
-	li new_messages;
+	std::vector<char> new_messages;
 	map<char, int>::iterator it;
 
 	for (it = lan_status.begin(); it != lan_status.end(); it++)

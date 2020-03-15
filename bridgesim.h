@@ -1,7 +1,3 @@
-#include <vector>
-#include <map>
-#include <utility>
-#include <set>
 #include "bridge.h"
 class Network
 {

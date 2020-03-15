@@ -141,7 +141,7 @@ void Network::process_bridges()
                 count_b1++;
                 config_has_b1[i] = true;
             }
-            li inp = bridges[i].send_config_message();
+            std::vector<char> inp = bridges[i].send_config_message();
             if (t == 1)
             {
                 for (size_t k = 0; k < inp.size(); k++)
@@ -151,7 +151,7 @@ void Network::process_bridges()
                          << " " << bridges[i].out_config_mes().d << ", B" << bridges[i].Distri_mes.sp << ")" << endl;
                 }
             }
-            for (li::iterator it = inp.begin(); it != inp.end(); ++it)
+            for (std::vector<char>::iterator it = inp.begin(); it != inp.end(); ++it)
             {
 
                 message_on_lan[*it].push_back(bridges[i].out_config_mes());

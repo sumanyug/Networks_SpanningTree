@@ -2,8 +2,6 @@
 #include <map>
 #include <utility>
 #include <set>
-typedef std::vector<char> li;
-typedef std::vector<int> state;
 struct Message
 {
 
@@ -42,11 +40,11 @@ public:
 	Data forwarding_data;
 	//-----------------------------------------
 	Bridge();
-	Bridge(int pos, li &vals);
+	Bridge(int pos, std::vector<char> &vals);
 
 	void set_init_config_message();
 	void update_state(int t, int tr_count); // this will update the output configuration messages that are to be sent.
-	li send_config_message();
+	std::vector<char> send_config_message();
 	Message out_config_mes();
 	void output();
 	void lan_send_to_setup();
