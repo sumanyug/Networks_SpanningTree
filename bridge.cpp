@@ -1,7 +1,9 @@
 #include "bridge.h"
 #include <iostream>
 #include <iterator>
+#include <algorithm>
 using namespace std;
+
 bool Message::operator<(const Message &rhs) const
 {
 	if (rp < rhs.rp)
@@ -85,7 +87,7 @@ void Bridge::set_init_config_message()
 	Distri_mes = dist;
 }
 
-void Bridge::update_state()
+void Bridge::update_state(int t, int tr_count)
 {
 
 	//go through received messages.
@@ -93,6 +95,18 @@ void Bridge::update_state()
 	received_messages ::iterator it;
 	char new_pos = '0';
 	bool new_pos_obtained = false;
+
+	if (t == 1)
+	{
+		sort(rm.begin(), rm.end());
+
+		for (it = rm.begin(); it != rm.end(); it++)
+		{
+			cout << tr_count << " r B" << pos << " "
+				 << "(B" << it->second.rp << ","
+				 << " " << it->second.d << ", B" << it->second.sp << ")" << endl;
+		}
+	}
 	for (it = rm.begin(); it != rm.end(); it++)
 	{
 		char lan_from = it->first;

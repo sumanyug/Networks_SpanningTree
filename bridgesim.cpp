@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include <iterator>
+#include <algorithm>
 using namespace std;
 
 Network::Network()
@@ -130,7 +131,7 @@ void Network::process_bridges()
         }
         for (int i = 1; i <= n_bridges; i++)
         {
-            bridges[i].update_state();
+            bridges[i].update_state(t, tr_count);
         }
         message_on_lan = empty_lan;
         for (int i = 1; i <= n_bridges; i++)
@@ -141,7 +142,15 @@ void Network::process_bridges()
                 config_has_b1[i] = true;
             }
             li inp = bridges[i].send_config_message();
-
+            if (t == 1)
+            {
+                for (size_t k = 0; k < inp.size(); k++)
+                {
+                    cout << tr_count << " s B" << bridges[i].pos << " "
+                         << "(B" << bridges[i].out_config_mes().rp << ","
+                         << " " << bridges[i].out_config_mes().d << ", B" << bridges[i].Distri_mes.sp << ")" << endl;
+                }
+            }
             for (li::iterator it = inp.begin(); it != inp.end(); ++it)
             {
 
@@ -150,6 +159,7 @@ void Network::process_bridges()
         }
         if (!(count_b1 < n_bridges))
             count_to_all_update++;
+        tr_count++;
     }
 }
 
@@ -190,7 +200,31 @@ void Network::process_lan()
         {
             //step 1 -> Go through all the Data that has been passed through. Give it to bridge.
             map<char, Data> new_all_messages;
+            vector<pair<int, char>> output_t1, output_t2;
 
+            if (t == 1)
+            {
+                for (map<char, Data>::iterator it = all_messages.begin(); it != all_messages.end(); it++)
+                {
+                    if (t == 1)
+                    {
+                        for (vector<int>::iterator jt = final_lan_def[it->first].begin(); jt != final_lan_def[it->first].end(); jt++)
+                        {
+                            if ((it->second).bridge != *jt)
+                            {
+                                pair<char, int> val(bridges[i].pos, it->first);
+                                output_t1.push_back(val);
+                            }
+                        }
+                    }
+                }
+
+                sort(output_t1.begin(), output_t1.end());
+                for (int i = 0; i < output_t1.size(); i++)
+                {
+                    cout << tcount << " r B" << output_t1[i].first << " " << output_t1[i].second << endl;
+                }
+            }
             for (map<char, Data>::iterator it = all_messages.begin(); it != all_messages.end(); it++)
             {
                 for (vector<int>::iterator jt = final_lan_def[it->first].begin(); jt != final_lan_def[it->first].end(); jt++)
@@ -204,13 +238,26 @@ void Network::process_lan()
 
                         for (set<char>::iterator kt = new_set_messages.begin(); kt != new_set_messages.end(); ++kt)
                         {
+                            pair<int, char> val2(*jt, *kt);
+                            output_t2.push_back(val2);
                             new_all_messages[*kt] = bridges[*jt].forwarding_data;
                         }
                     }
                 }
             }
+
+            if (t == 1)
+            {
+                sort(output_t2.begin(), output_t2.end());
+                for (size_t i = 0; i < output_t2.size(); i++)
+                {
+                    cout << tcount << " s B" << output_t1[i].first << " " << output_t1[i].second << endl;
+                }
+            }
+
             //step 3 -> Add all the messages to the new lan.
             all_messages = new_all_messages;
+            tcount++;
         }
 
         for (int i = 1; i <= n_bridges; i++)

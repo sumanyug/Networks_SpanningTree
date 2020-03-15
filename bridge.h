@@ -45,7 +45,7 @@ public:
 	Bridge(int pos, li &vals);
 
 	void set_init_config_message();
-	void update_state(); // this will update the output configuration messages that are to be sent.
+	void update_state(int t, int tr_count); // this will update the output configuration messages that are to be sent.
 	li send_config_message();
 	Message out_config_mes();
 	void output();
@@ -55,4 +55,3 @@ public:
 	void print_learning_table();
 
 }; //A bridge with basic functionalities defined.
-
