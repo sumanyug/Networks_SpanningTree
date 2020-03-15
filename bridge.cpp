@@ -184,3 +184,51 @@ void Bridge::output()
 	// cout << "Distri:"
 	// 	 << "(" << Distri_mes.rp << "," << Distri_mes.d << "," << Distri_mes.sp << ")" << endl;
 }
+
+void Bridge::lan_send_to_setup()
+{
+	map<char, int>::iterator it;
+
+	for (it = lan_status.begin(); it != lan_status.end(); ++it)
+	{
+		if (it->second == 0 || it->second == 2)
+			lan_send_to.insert(it->first);
+	}
+}
+
+set<char> Bridge::lan_forward_to(char input_lan, Data input_data)
+{
+	set<char> output_lans;
+	if (learn_table.find(input_data.receiver) != learn_table.end())
+	{
+		char c = (learn_table.find(input_data.receiver))->second;
+		if (c != input_lan)
+			output_lans.insert((learn_table.find(input_data.receiver))->second);
+	}
+	else
+	{
+
+		output_lans = lan_send_to;
+		output_lans.erase(output_lans.find(input_lan));
+	}
+
+	learn_table[input_data.sender] = input_lan;
+	forwarding_data = input_data;
+	forwarding_data.bridge = pos;
+	return output_lans;
+}
+
+set<char> Bridge::sending_table_setup()
+{
+	return lan_send_to;
+}
+
+void Bridge::print_learning_table()
+{
+	cout << "B" << pos << ":" << endl
+		 << "HOST ID | FORWARDING PORT" << endl;
+	for (map<int, char>::iterator i = learn_table.begin(); i != learn_table.end(); i++)
+	{
+		cout << "H" << i->first << " | " << i->second << endl;
+	}
+}
